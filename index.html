@@ -56,6 +56,10 @@
     .field label { color: var(--muted); font-size: 11px; font-weight: 600; }
     .field input, .field textarea, .item-row input, .item-row select { width: 100%; min-width: 0; height: 36px; border: 1px solid var(--line); border-radius: 3px; padding: 7px 9px; color: var(--ink); background: white; outline: none; }
     .field textarea { height: 62px; resize: vertical; }
+    .segmented { display: inline-flex; width: max-content; gap: 3px; padding: 3px; border: 1px solid var(--line); border-radius: 4px; background: white; }
+    .segmented button { min-width: 96px; min-height: 31px; border: 0; border-radius: 2px; padding: 0 12px; color: var(--muted); background: transparent; font-size: 12px; font-weight: 650; }
+    .segmented button[aria-pressed="true"] { color: white; background: var(--green); }
+    .segmented button:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
     input:focus, select:focus, textarea:focus { border-color: #5c8877; box-shadow: 0 0 0 2px #5c88771c; }
     .items-head, .item-row { display: grid; grid-template-columns: minmax(0, 1fr) 54px 72px 82px 28px; align-items: center; gap: 7px; }
     .items-head { padding: 0 0 7px; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
@@ -177,10 +181,10 @@
     <div class="page-heading">
       <div>
         <div class="eyebrow">Studio / Billing</div>
-        <h1>Create an invoice</h1>
+        <h1 id="page-title">Create an invoice</h1>
       </div>
       <div class="toolbar">
-        <button class="button quiet" id="new-invoice" type="button">New invoice</button>
+        <button class="button quiet" id="new-invoice" type="button">New document</button>
         <button class="button" id="save-invoice" type="button">Save invoice</button>
         <button class="button primary" id="export-invoice" type="button">Export PDF</button>
       </div>
@@ -199,11 +203,12 @@
             </div>
           </section>
           <section class="panel-section">
-            <div class="section-heading"><h2>Invoice details</h2></div>
+            <div class="section-heading"><h2 id="document-details-heading">Invoice details</h2></div>
             <div class="fields">
-              <div class="field"><label for="invoice-number">Invoice number</label><input id="invoice-number" autocomplete="off"></div>
+              <div class="field full"><label>Document type</label><div class="segmented" id="document-type-switch" role="group" aria-label="Document type"><button type="button" data-document-type="invoice" aria-pressed="true">Invoice</button><button type="button" data-document-type="quote" aria-pressed="false">Quote</button></div></div>
+              <div class="field"><label id="document-number-label" for="invoice-number">Invoice number</label><input id="invoice-number" autocomplete="off"></div>
               <div class="field"><label for="invoice-date">Issue date</label><input id="invoice-date" type="date"></div>
-              <div class="field"><label for="due-date">Due date</label><input id="due-date" type="date"></div>
+              <div class="field"><label id="due-date-label" for="due-date">Due date</label><input id="due-date" type="date"></div>
               <div class="field"><label for="invoice-note">Note</label><input id="invoice-note" placeholder="Optional message"></div>
             </div>
           </section>
@@ -216,13 +221,13 @@
           </section>
         </div>
         <section class="panel history">
-          <div class="section-heading"><h2>Recent invoices</h2><span class="section-note" id="history-count"></span></div>
+          <div class="section-heading"><h2>Recent documents</h2><span class="section-note" id="history-count"></span></div>
           <div class="history-list" id="history-list"></div>
         </section>
       </section>
 
-      <section class="preview-wrap" aria-label="Invoice preview">
-        <div class="preview-label"><span>Invoice preview</span><span>Print-ready · A4</span></div>
+      <section class="preview-wrap" id="preview-wrap" aria-label="Invoice preview">
+        <div class="preview-label"><span id="preview-kind">Invoice preview</span><span>Print-ready · A4</span></div>
         <article class="invoice-paper" id="invoice-paper">
           <header class="invoice-top">
             <div class="invoice-business">
@@ -230,11 +235,11 @@
               <p>Joubertina, South Africa</p>
               <p>067 060 0410</p>
             </div>
-            <div class="invoice-number"><h3>INVOICE</h3><p id="preview-number"></p><p id="preview-date"></p></div>
+            <div class="invoice-number"><h3 id="preview-document-title">INVOICE</h3><p id="preview-number"></p><p id="preview-date"></p></div>
           </header>
           <section class="invoice-customer">
             <div><div class="print-label">Bill to</div><div class="customer-name" id="preview-customer">Customer name</div><div class="customer-meta" id="preview-customer-meta"></div></div>
-            <div><div class="print-label">Payment due</div><div class="customer-name" id="preview-due">—</div></div>
+            <div><div class="print-label" id="preview-due-label">Payment due</div><div class="customer-name" id="preview-due">—</div></div>
           </section>
           <table class="invoice-table">
             <thead><tr><th>Description</th><th>Amount</th></tr></thead>
@@ -290,19 +295,21 @@
       return `${year}-${month}-${day}`;
     }
 
-    function invoiceId() {
+    function invoiceId(type = 'invoice') {
       const year = new Date().getFullYear();
-      const count = Number(localStorage.getItem(COUNTER_KEY) || 0) + 1;
-      localStorage.setItem(COUNTER_KEY, String(count));
-      return `LCC-${year}-${String(count).padStart(3, '0')}`;
+      const counterKey = type === 'quote' ? `${COUNTER_KEY}-quote` : COUNTER_KEY;
+      const count = Number(localStorage.getItem(counterKey) || 0) + 1;
+      localStorage.setItem(counterKey, String(count));
+      const prefix = type === 'quote' ? 'LCC-Q' : 'LCC';
+      return `${prefix}-${year}-${String(count).padStart(3, '0')}`;
     }
 
-    function freshInvoice() {
+    function freshInvoice(type = 'invoice') {
       const issue = new Date();
       const due = new Date(issue);
       due.setDate(due.getDate() + 7);
       return {
-        number: invoiceId(), date: localDate(issue), dueDate: localDate(due),
+        type, number: invoiceId(type), date: localDate(issue), dueDate: localDate(due),
         customer: '', phone: '', email: '', address: '', note: '',
         items: [{ service: '', description: '', quantity: 1, rate: 0 }]
       };
@@ -316,6 +323,7 @@
     function collectInvoice() {
       return {
         ...currentInvoice,
+        type: currentInvoice.type || 'invoice',
         number: $('#invoice-number').value.trim(), date: $('#invoice-date').value,
         dueDate: $('#due-date').value, customer: $('#customer-name').value.trim(),
         phone: $('#customer-phone').value.trim(), email: $('#customer-email').value.trim(),
@@ -373,7 +381,19 @@
 
     function updatePreview() {
       const invoice = collectInvoice();
+      const isQuote = invoice.type === 'quote';
+      const typeName = isQuote ? 'quote' : 'invoice';
+      const totalLabel = isQuote ? 'Quote total' : 'Amount due';
       const { subtotal, total } = amountFor(invoice);
+      $('#page-title').textContent = `Create ${isQuote ? 'a quote' : 'an invoice'}`;
+      $('#save-invoice').textContent = `Save ${typeName}`;
+      $('#document-details-heading').textContent = isQuote ? 'Quote details' : 'Invoice details';
+      $('#document-number-label').textContent = isQuote ? 'Quote number' : 'Invoice number';
+      $('#due-date-label').textContent = isQuote ? 'Valid until' : 'Due date';
+      $('#preview-wrap').setAttribute('aria-label', `${isQuote ? 'Quote' : 'Invoice'} preview`);
+      $('#preview-kind').textContent = `${isQuote ? 'Quote' : 'Invoice'} preview`;
+      $('#preview-document-title').textContent = isQuote ? 'QUOTE' : 'INVOICE';
+      $('#preview-due-label').textContent = isQuote ? 'Valid until' : 'Payment due';
       $('#preview-number').textContent = invoice.number || 'Invoice number';
       $('#preview-date').textContent = invoice.date ? `Issued ${formatDate(invoice.date)}` : 'Issue date';
       $('#preview-customer').textContent = invoice.customer || 'Customer name';
@@ -384,8 +404,8 @@
         ? activeItems.map((item) => `<tr><td>${escapeHtml(item.description)}</td><td>${currency.format(item.rate * item.quantity)}</td></tr>`).join('')
         : '<tr class="empty-row"><td colspan="2">Add a service to your invoice</td></tr>';
       const adjustment = total - subtotal;
-      $('#preview-totals').innerHTML = `<div class="total-line"><span>Subtotal</span><strong>${currency.format(subtotal)}</strong></div>${adjustment ? `<div class="total-line"><span>Rounding adjustment</span><strong>${currency.format(adjustment)}</strong></div>` : ''}<div class="total-line grand"><span>Amount due</span><strong>${currency.format(total)}</strong></div>`;
-      $('#editor-totals').innerHTML = `<div class="total-line"><span>Subtotal</span><strong>${currency.format(subtotal)}</strong></div>${adjustment ? `<div class="total-line"><span>Rounding adjustment</span><strong>${currency.format(adjustment)}</strong></div>` : ''}<div class="total-line grand"><span>Amount due</span><strong>${currency.format(total)}</strong></div>`;
+      $('#preview-totals').innerHTML = `<div class="total-line"><span>Subtotal</span><strong>${currency.format(subtotal)}</strong></div>${adjustment ? `<div class="total-line"><span>Rounding adjustment</span><strong>${currency.format(adjustment)}</strong></div>` : ''}<div class="total-line grand"><span>${totalLabel}</span><strong>${currency.format(total)}</strong></div>`;
+      $('#editor-totals').innerHTML = `<div class="total-line"><span>Subtotal</span><strong>${currency.format(subtotal)}</strong></div>${adjustment ? `<div class="total-line"><span>Rounding adjustment</span><strong>${currency.format(adjustment)}</strong></div>` : ''}<div class="total-line grand"><span>${totalLabel}</span><strong>${currency.format(total)}</strong></div>`;
       $('#preview-note').textContent = invoice.note;
       currentInvoice = invoice;
     }
@@ -404,6 +424,11 @@
     }
 
     function renderEditor(invoice) {
+      invoice.type = invoice.type === 'quote' ? 'quote' : 'invoice';
+      currentInvoice = invoice;
+      document.querySelectorAll('[data-document-type]').forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.documentType === invoice.type));
+      });
       $('#invoice-number').value = invoice.number;
       $('#invoice-date').value = invoice.date;
       $('#due-date').value = invoice.dueDate;
@@ -422,8 +447,9 @@
       $('#history-count').textContent = invoices.length ? `${invoices.length} saved` : '';
       $('#history-list').innerHTML = invoices.length ? invoices.map((invoice) => {
         const { total } = amountFor(invoice);
-        return `<button class="history-row" type="button" data-invoice-number="${escapeHtml(invoice.number)}"><span class="history-name">${escapeHtml(invoice.customer || 'Unnamed customer')}</span><span class="history-amount">${currency.format(total)}</span><span class="history-number">${escapeHtml(invoice.number)} · ${formatDate(invoice.date)}</span></button>`;
-      }).join('') : '<div class="history-empty">Saved invoices will appear here.</div>';
+        const typeName = invoice.type === 'quote' ? 'Quote' : 'Invoice';
+        return `<button class="history-row" type="button" data-invoice-number="${escapeHtml(invoice.number)}"><span class="history-name">${escapeHtml(invoice.customer || 'Unnamed customer')}</span><span class="history-amount">${currency.format(total)}</span><span class="history-number">${typeName} · ${escapeHtml(invoice.number)} · ${formatDate(invoice.date)}</span></button>`;
+      }).join('') : '<div class="history-empty">Saved documents will appear here.</div>';
     }
 
     function notify(message) {
@@ -446,7 +472,7 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(invoices));
       currentInvoice = invoice;
       renderHistory();
-      notify('Invoice saved on this device.');
+      notify(`${invoice.type === 'quote' ? 'Quote' : 'Invoice'} saved on this device.`);
     }
 
     function startNewInvoice() {
@@ -497,11 +523,22 @@
     });
     $('#new-invoice').addEventListener('click', startNewInvoice);
     $('#save-invoice').addEventListener('click', saveInvoice);
+    $('#document-type-switch').addEventListener('click', (event) => {
+      const button = event.target.closest('[data-document-type]');
+      if (!button || button.dataset.documentType === currentInvoice.type) return;
+      const invoice = collectInvoice();
+      invoice.type = button.dataset.documentType;
+      invoice.number = invoiceId(invoice.type);
+      renderEditor(invoice);
+    });
     $('#export-invoice').addEventListener('click', () => {
       updatePreview();
       const invoice = collectInvoice();
       const safeName = (value) => value.replace(/[<>:"/\\|?*\u0000-\u001F]/g, '').trim().replace(/\s+/g, ' ');
-      const filename = [safeName(invoice.customer || 'Customer'), safeName(invoice.number || 'Invoice')].filter(Boolean).join(' - ');
+      const filenameParts = [safeName(invoice.customer || 'Customer')];
+      if (invoice.type === 'quote') filenameParts.push('Quote');
+      filenameParts.push(safeName(invoice.number || 'Invoice'));
+      const filename = filenameParts.filter(Boolean).join(' - ');
       const previousTitle = document.title;
       document.title = filename;
       window.addEventListener('afterprint', () => { document.title = previousTitle; }, { once: true });
