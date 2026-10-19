@@ -499,6 +499,12 @@
     $('#save-invoice').addEventListener('click', saveInvoice);
     $('#export-invoice').addEventListener('click', () => {
       updatePreview();
+      const invoice = collectInvoice();
+      const safeName = (value) => value.replace(/[<>:"/\\|?*\u0000-\u001F]/g, '').trim().replace(/\s+/g, ' ');
+      const filename = [safeName(invoice.customer || 'Customer'), safeName(invoice.number || 'Invoice')].filter(Boolean).join(' - ');
+      const previousTitle = document.title;
+      document.title = filename;
+      window.addEventListener('afterprint', () => { document.title = previousTitle; }, { once: true });
       window.print();
     });
     $('#history-list').addEventListener('click', (event) => {
