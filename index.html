@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183b32">
+  <title>Langkloof Carpet & Upholstery Cleaning | Invoices</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1e2925;
+      --muted: #69746e;
+      --line: #dce3dc;
+      --paper: #fffefa;
+      --canvas: #f1f3ed;
+      --green: #183b32;
+      --green-light: #e8efe9;
+      --copper: #b36b43;
+      --serif: Georgia, 'Times New Roman', serif;
+      --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); font: 14px/1.45 var(--sans); }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .topbar { min-height: 76px; padding: 14px clamp(18px, 4vw, 56px); background: var(--green); color: white; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
+    .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid #83a093; color: #f5d7bd; font: 18px var(--serif); flex: 0 0 auto; }
+    .brand-title { font: 19px/1.15 var(--serif); }
+    .brand-subtitle { color: #c0d1c7; font-size: 11px; margin-top: 4px; letter-spacing: .04em; }
+    .topbar-note { color: #c0d1c7; font-size: 12px; white-space: nowrap; }
+
+    .workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px clamp(16px, 4vw, 56px) 60px; }
+    .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin: 0 0 22px; }
+    .eyebrow { text-transform: uppercase; color: var(--copper); font-size: 10px; font-weight: 700; letter-spacing: .16em; }
+    h1 { margin: 3px 0 0; font: 30px/1.1 var(--serif); font-weight: 400; }
+    .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: end; }
+    .button { min-height: 38px; border: 1px solid var(--line); padding: 0 13px; color: var(--ink); background: white; border-radius: 4px; font-size: 12px; font-weight: 650; transition: background .15s, border-color .15s; }
+    .button:hover { border-color: #9bac9f; background: #f8faf7; }
+    .button.primary { background: var(--green); border-color: var(--green); color: white; }
+    .button.primary:hover { background: #285347; }
+    .button.quiet { background: transparent; }
+    .button.danger { color: #8d3d2d; }
+    .layout { display: grid; grid-template-columns: minmax(330px, .88fr) minmax(480px, 1.12fr); align-items: start; gap: 24px; }
+    .editor { display: grid; gap: 14px; }
+    .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 5px; }
+    .panel-section { padding: 18px 20px 20px; border-bottom: 1px solid var(--line); }
+    .panel-section:last-child { border-bottom: 0; }
+    .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .section-heading h2 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .09em; }
+    .section-note { font-size: 11px; color: var(--muted); }
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { display: grid; gap: 5px; min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: var(--muted); font-size: 11px; font-weight: 600; }
+    .field input, .field textarea, .item-row input, .item-row select { width: 100%; min-width: 0; height: 36px; border: 1px solid var(--line); border-radius: 3px; padding: 7px 9px; color: var(--ink); background: white; outline: none; }
+    .field textarea { height: 62px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { border-color: #5c8877; box-shadow: 0 0 0 2px #5c88771c; }
+    .items-head, .item-row { display: grid; grid-template-columns: minmax(0, 1fr) 54px 72px 82px 28px; align-items: center; gap: 7px; }
+    .items-head { padding: 0 0 7px; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+    .items-head span:nth-child(n+2) { text-align: right; }
+    .item-row { margin-bottom: 8px; }
+    .item-row input { text-align: right; }
+    .item-row select { padding-right: 24px; }
+    .item-row .service-select[hidden] { display: none; }
+    .item-row .line-total { color: var(--ink); font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .remove-item { width: 28px; height: 32px; border: 0; background: transparent; color: #8b9790; font-size: 18px; }
+    .remove-item:hover { color: #9e4233; }
+    .item-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+    .text-button { background: transparent; border: 0; padding: 0; color: var(--green); font-weight: 650; font-size: 12px; }
+    .text-button:hover { text-decoration: underline; }
+    .totals-editor { margin-top: 15px; border-top: 1px solid var(--line); padding-top: 13px; display: grid; gap: 6px; }
+    .total-line { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+    .total-line strong { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+    .total-line.grand { color: var(--ink); font-size: 14px; padding-top: 6px; }
+    .total-line.grand strong { color: var(--green); font-size: 18px; }
+    .history { overflow: hidden; }
+    .history .section-heading { margin: 0; padding: 15px 18px 12px; border-bottom: 1px solid var(--line); }
+    .history-list { max-height: 260px; overflow: auto; }
+    .history-empty { padding: 16px 18px; color: var(--muted); font-size: 12px; }
+    .history-row { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 18px; border: 0; border-bottom: 1px solid #edf0eb; text-align: left; color: var(--ink); background: transparent; }
+    .history-row:hover { background: #f5f7f2; }
+    .history-row:last-child { border-bottom: 0; }
+    .history-name { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .history-number, .history-date { color: var(--muted); font-size: 11px; }
+    .history-amount { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-variant-numeric: tabular-nums; font-weight: 650; }
+
+    .preview-wrap { position: sticky; top: 18px; }
+    .preview-label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 9px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; }
+    .preview-label span:last-child { text-transform: none; letter-spacing: 0; }
+    .invoice-paper { background: #fff; border: 1px solid #e1e5df; box-shadow: 0 8px 24px #233b2b0c; padding: 42px 44px; min-height: 700px; }
+    .invoice-top { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 27px; border-bottom: 2px solid var(--green); }
+    .invoice-business { max-width: 65%; }
+    .invoice-business h2 { margin: 0 0 8px; color: var(--green); font: 23px/1.12 var(--serif); font-weight: 400; }
+    .invoice-business p, .invoice-number p { margin: 2px 0; color: var(--muted); font-size: 11px; }
+    .invoice-number { text-align: right; }
+    .invoice-number h3 { margin: 0 0 8px; font: 27px/1 var(--serif); font-weight: 400; letter-spacing: .02em; }
+    .invoice-customer { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; padding: 24px 0 27px; }
+    .print-label { margin-bottom: 7px; color: var(--copper); font-size: 9px; text-transform: uppercase; letter-spacing: .14em; font-weight: 700; }
+    .customer-name { font: 19px/1.2 var(--serif); overflow-wrap: anywhere; }
+    .customer-meta { margin-top: 5px; color: var(--muted); font-size: 11px; white-space: pre-line; }
+    .invoice-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .invoice-table th { padding: 9px 6px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--muted); text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
+    .invoice-table th:first-child, .invoice-table td:first-child { padding-left: 0; }
+    .invoice-table th:nth-child(2), .invoice-table th:nth-child(3), .invoice-table th:nth-child(4), .invoice-table td:nth-child(n+2) { text-align: right; }
+    .invoice-table th:nth-child(1) { width: 48%; }
+    .invoice-table th:nth-child(2) { width: 12%; }
+    .invoice-table th:nth-child(3) { width: 19%; }
+    .invoice-table th:nth-child(4) { width: 21%; }
+    .invoice-table td { padding: 11px 6px; border-bottom: 1px solid #edf0eb; font-size: 11px; overflow-wrap: anywhere; }
+    .invoice-table .empty-row td { color: #a2aaa4; font-style: italic; }
+    .invoice-sum { width: min(255px, 100%); margin: 18px 0 0 auto; display: grid; gap: 7px; }
+    .invoice-sum .total-line { font-size: 11px; }
+    .invoice-sum .total-line.grand { border-top: 1px solid var(--green); margin-top: 3px; padding-top: 10px; font-size: 12px; }
+    .invoice-sum .total-line.grand strong { font: 22px/1 var(--serif); }
+    .invoice-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 46px; padding-top: 15px; border-top: 1px solid var(--line); }
+    .bank-details p { margin: 2px 0; font-size: 10px; color: var(--muted); }
+    .bank-details strong { color: var(--ink); }
+    .thankyou { align-self: end; text-align: right; color: var(--green); font: italic 15px var(--serif); }
+    .invoice-note { margin-top: 17px; color: var(--muted); font-size: 10px; white-space: pre-line; }
+    .toast { position: fixed; right: 20px; bottom: 20px; max-width: calc(100vw - 40px); padding: 11px 15px; background: var(--green); color: white; border-radius: 4px; font-size: 12px; box-shadow: 0 5px 20px #0002; opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: minmax(300px, .9fr) minmax(400px, 1.1fr); gap: 14px; }
+      .invoice-paper { padding: 30px 27px; }
+      .items-head, .item-row { grid-template-columns: minmax(0, 1fr) 50px 68px 76px 24px; gap: 5px; }
+      .panel-section { padding-left: 15px; padding-right: 15px; }
+    }
+    @media (max-width: 760px) {
+      .topbar { min-height: 66px; }
+      .topbar-note { display: none; }
+      .workspace { padding-top: 21px; }
+      .page-heading { align-items: start; flex-direction: column; }
+      .toolbar { justify-content: start; }
+      .layout { grid-template-columns: 1fr; }
+      .preview-wrap { position: static; }
+      .invoice-paper { min-height: auto; padding: 30px clamp(20px, 6vw, 42px); }
+    }
+    @media (max-width: 420px) {
+      .brand-title { font-size: 16px; }
+      .brand-subtitle { font-size: 10px; }
+      .fields { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .invoice-paper { padding: 24px 17px; }
+      .invoice-top { gap: 10px; }
+      .invoice-business h2 { font-size: 19px; }
+      .invoice-number h3 { font-size: 23px; }
+      .invoice-customer { gap: 10px; grid-template-columns: 1.1fr 1fr; }
+      .invoice-bottom { gap: 12px; }
+      .bank-details p { font-size: 9px; }
+    }
+    @media print {
+      @page { size: A4; margin: 12mm; }
+      body { background: white; color: #1e2925; font-size: 12px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .topbar, .page-heading, .editor, .preview-label, .toast { display: none !important; }
+      .workspace { width: 100%; max-width: none; margin: 0; padding: 0; }
+      .layout { display: block; }
+      .preview-wrap { position: static; }
+      .invoice-paper { border: 0; box-shadow: none; min-height: 0; padding: 4mm 2mm; }
+      .invoice-table tr, .invoice-bottom { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">LK</div>
+      <div>
+        <div class="brand-title">Langkloof Carpet &amp; Upholstery Cleaning</div>
+        <div class="brand-subtitle">Joubertina · South Africa</div>
+      </div>
+    </div>
+    <div class="topbar-note">Invoices saved on this device</div>
+  </header>
+
+  <main class="workspace">
+    <div class="page-heading">
+      <div>
+        <div class="eyebrow">Studio / Billing</div>
+        <h1>Create an invoice</h1>
+      </div>
+      <div class="toolbar">
+        <button class="button quiet" id="new-invoice" type="button">New invoice</button>
+        <button class="button" id="save-invoice" type="button">Save invoice</button>
+        <button class="button primary" id="export-invoice" type="button">Export PDF</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <section class="editor" aria-label="Invoice editor">
+        <div class="panel">
+          <section class="panel-section">
+            <div class="section-heading"><h2>Customer</h2></div>
+            <div class="fields">
+              <div class="field full"><label for="customer-name">Customer name</label><input id="customer-name" autocomplete="name" placeholder="Name or business"></div>
+              <div class="field"><label for="customer-phone">Phone</label><input id="customer-phone" type="tel" autocomplete="tel" placeholder="Contact number"></div>
+              <div class="field"><label for="customer-email">Email</label><input id="customer-email" type="email" autocomplete="email" placeholder="name@example.com"></div>
+              <div class="field full"><label for="customer-address">Address</label><textarea id="customer-address" autocomplete="street-address" placeholder="Street address"></textarea></div>
+            </div>
+          </section>
+          <section class="panel-section">
+            <div class="section-heading"><h2>Invoice details</h2></div>
+            <div class="fields">
+              <div class="field"><label for="invoice-number">Invoice number</label><input id="invoice-number" autocomplete="off"></div>
+              <div class="field"><label for="invoice-date">Issue date</label><input id="invoice-date" type="date"></div>
+              <div class="field"><label for="due-date">Due date</label><input id="due-date" type="date"></div>
+              <div class="field"><label for="invoice-note">Note</label><input id="invoice-note" placeholder="Optional message"></div>
+            </div>
+          </section>
+          <section class="panel-section">
+            <div class="section-heading"><h2>Services</h2><span class="section-note">Rates from your price sheet · ZAR</span></div>
+            <div class="items-head"><span>Description</span><span>Qty</span><span>Rate</span><span>Amount</span><span></span></div>
+            <div id="editor-items"></div>
+            <div class="item-actions"><button class="text-button" id="add-item" type="button">+ Add service</button><span class="section-note">Amount rounded to nearest R100</span></div>
+            <div class="totals-editor" id="editor-totals"></div>
+          </section>
+        </div>
+        <section class="panel history">
+          <div class="section-heading"><h2>Recent invoices</h2><span class="section-note" id="history-count"></span></div>
+          <div class="history-list" id="history-list"></div>
+        </section>
+      </section>
+
+      <section class="preview-wrap" aria-label="Invoice preview">
+        <div class="preview-label"><span>Invoice preview</span><span>Print-ready · A4</span></div>
+        <article class="invoice-paper" id="invoice-paper">
+          <header class="invoice-top">
+            <div class="invoice-business">
+              <h2>Langkloof Carpet and Upholstery Cleaning</h2>
+              <p>Joubertina, South Africa</p>
+              <p>067 060 0410</p>
+            </div>
+            <div class="invoice-number"><h3>INVOICE</h3><p id="preview-number"></p><p id="preview-date"></p></div>
+          </header>
+          <section class="invoice-customer">
+            <div><div class="print-label">Bill to</div><div class="customer-name" id="preview-customer">Customer name</div><div class="customer-meta" id="preview-customer-meta"></div></div>
+            <div><div class="print-label">Payment due</div><div class="customer-name" id="preview-due">—</div></div>
+          </section>
+          <table class="invoice-table">
+            <thead><tr><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
+            <tbody id="preview-items"></tbody>
+          </table>
+          <div class="invoice-sum" id="preview-totals"></div>
+          <footer class="invoice-bottom">
+            <div class="bank-details">
+              <div class="print-label">Banking details</div>
+              <p><strong>ABSA</strong> · Current account</p>
+              <p>Account holder: FPJ Botha</p>
+              <p>Account number: 4115640925</p>
+              <p>Payment reference: Customer name</p>
+            </div>
+            <div class="thankyou">Thank you for your business.</div>
+          </footer>
+          <div class="invoice-note" id="preview-note"></div>
+        </article>
+      </section>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const SERVICES = [
+      { name: 'Klein mat (kleiner as 3m²)', rate: 125 },
+      { name: 'Groot mat (groter as 3m²)', rate: 250 },
+      { name: 'Ekstra groot mat (groter as 10m²)', rate: 25 },
+      { name: 'Permanente matte', rate: 25 },
+      { name: '1 seater', rate: 250 },
+      { name: '2 seater bank', rate: 450 },
+      { name: '3 seater bank', rate: 600 },
+      { name: '4 seater bank', rate: 800 },
+      { name: 'Enkel matras', rate: 100 },
+      { name: 'Dubbel matras', rate: 200 },
+      { name: 'Queen matras', rate: 300 },
+      { name: 'King matras', rate: 400 },
+      { name: 'Vervoer', rate: 8 },
+      { name: 'Bank kussings', rate: 75 },
+      { name: 'Stoel kussings', rate: 50 }
+    ];
+    const STORAGE_KEY = 'langkloof-invoices-v1';
+    const COUNTER_KEY = 'langkloof-invoice-counter-v1';
+    const currency = new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR', maximumFractionDigits: 2 });
+    const $ = (selector) => document.querySelector(selector);
+    let currentInvoice = null;
+    let toastTimer;
+
+    function localDate(date = new Date()) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function invoiceId() {
+      const year = new Date().getFullYear();
+      const count = Number(localStorage.getItem(COUNTER_KEY) || 0) + 1;
+      localStorage.setItem(COUNTER_KEY, String(count));
+      return `LCC-${year}-${String(count).padStart(3, '0')}`;
+    }
+
+    function freshInvoice() {
+      const issue = new Date();
+      const due = new Date(issue);
+      due.setDate(due.getDate() + 7);
+      return {
+        number: invoiceId(), date: localDate(issue), dueDate: localDate(due),
+        customer: '', phone: '', email: '', address: '', note: '',
+        items: [{ service: '', description: '', quantity: 1, rate: 0 }]
+      };
+    }
+
+    function readInvoices() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+      catch { return []; }
+    }
+
+    function collectInvoice() {
+      return {
+        ...currentInvoice,
+        number: $('#invoice-number').value.trim(), date: $('#invoice-date').value,
+        dueDate: $('#due-date').value, customer: $('#customer-name').value.trim(),
+        phone: $('#customer-phone').value.trim(), email: $('#customer-email').value.trim(),
+        address: $('#customer-address').value.trim(), note: $('#invoice-note').value.trim(),
+        items: [...$('#editor-items').querySelectorAll('.item-row')].map((row) => {
+          const serviceSelect = row.querySelector('.service-select');
+          const customDescription = row.querySelector('.custom-description');
+          return {
+            service: customDescription ? 'custom' : serviceSelect?.value || '',
+            description: customDescription ? customDescription.value.trim() : serviceSelect?.selectedOptions[0]?.textContent || '',
+            quantity: Math.max(0, Number(row.querySelector('.quantity-input')?.value) || 0),
+            rate: Math.max(0, Number(row.querySelector('.rate-input')?.value) || 0)
+          };
+        })
+      };
+    }
+
+    function amountFor(invoice) {
+      const subtotal = invoice.items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
+      return { subtotal, total: Math.round(subtotal / 100) * 100 };
+    }
+
+    function addItemRow(item = { service: '', description: '', quantity: 1, rate: 0 }) {
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      const options = SERVICES.map((service) => `<option value="${service.name.replaceAll('"', '&quot;')}">${service.name}</option>`).join('');
+      row.innerHTML = `<select class="service-select" aria-label="Service"><option value="">Select service</option>${options}<option value="custom">Custom service</option></select><input class="quantity-input" type="number" min="0" step="0.1" value="${item.quantity ?? 1}" aria-label="Quantity"><input class="rate-input" type="number" min="0" step="0.01" value="${item.rate ?? 0}" aria-label="Unit rate"><button class="remove-item" type="button" aria-label="Remove service" title="Remove service">×</button>`;
+      if (item.service === 'custom') {
+        const description = document.createElement('input');
+        description.className = 'custom-description';
+        description.placeholder = 'Custom service';
+        description.value = item.description || '';
+        description.setAttribute('aria-label', 'Custom service description');
+        row.prepend(description);
+        row.querySelector('.service-select').value = 'custom';
+        row.querySelector('.service-select').hidden = true;
+      } else {
+        row.querySelector('.service-select').value = item.service || '';
+      }
+      $('#editor-items').append(row);
+      updateRowTotal(row);
+    }
+
+    function updateRowTotal(row) {
+      let total = row.querySelector('.line-total');
+      if (!total) {
+        total = document.createElement('span');
+        total.className = 'line-total';
+        total.setAttribute('aria-label', 'Line total');
+        row.insertBefore(total, row.querySelector('.remove-item'));
+      }
+      const amount = (Number(row.querySelector('.quantity-input').value) || 0) * (Number(row.querySelector('.rate-input').value) || 0);
+      total.textContent = currency.format(amount);
+    }
+
+    function updatePreview() {
+      const invoice = collectInvoice();
+      const { subtotal, total } = amountFor(invoice);
+      $('#preview-number').textContent = invoice.number || 'Invoice number';
+      $('#preview-date').textContent = invoice.date ? `Issued ${formatDate(invoice.date)}` : 'Issue date';
+      $('#preview-customer').textContent = invoice.customer || 'Customer name';
+      $('#preview-customer-meta').textContent = [invoice.phone, invoice.email, invoice.address].filter(Boolean).join('\n');
+      $('#preview-due').textContent = invoice.dueDate ? formatDate(invoice.dueDate) : '—';
+      const activeItems = invoice.items.filter((item) => item.description && item.quantity > 0);
+      $('#preview-items').innerHTML = activeItems.length
+        ? activeItems.map((item) => `<tr><td>${escapeHtml(item.description)}</td><td>${formatQuantity(item.quantity)}</td><td>${currency.format(item.rate)}</td><td>${currency.format(item.rate * item.quantity)}</td></tr>`).join('')
+        : '<tr class="empty-row"><td colspan="4">Add a service to your invoice</td></tr>';
+      const adjustment = total - subtotal;
+      $('#preview-totals').innerHTML = `<div class="total-line"><span>Subtotal</span><strong>${currency.format(subtotal)}</strong></div>${adjustment ? `<div class="total-line"><span>Rounding adjustment</span><strong>${currency.format(adjustment)}</strong></div>` : ''}<div class="total-line grand"><span>Amount due</span><strong>${currency.format(total)}</strong></div>`;
+      $('#editor-totals').innerHTML = `<div class="total-line"><span>Subtotal</span><strong>${currency.format(subtotal)}</strong></div>${adjustment ? `<div class="total-line"><span>Rounding adjustment</span><strong>${currency.format(adjustment)}</strong></div>` : ''}<div class="total-line grand"><span>Amount due</span><strong>${currency.format(total)}</strong></div>`;
+      $('#preview-note').textContent = invoice.note;
+      currentInvoice = invoice;
+    }
+
+    function formatDate(value) {
+      if (!value) return '';
+      return new Intl.DateTimeFormat('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${value}T12:00:00`));
+    }
+
+    function formatQuantity(value) {
+      return new Intl.NumberFormat('en-ZA', { maximumFractionDigits: 2 }).format(value);
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+    }
+
+    function renderEditor(invoice) {
+      $('#invoice-number').value = invoice.number;
+      $('#invoice-date').value = invoice.date;
+      $('#due-date').value = invoice.dueDate;
+      $('#customer-name').value = invoice.customer;
+      $('#customer-phone').value = invoice.phone;
+      $('#customer-email').value = invoice.email;
+      $('#customer-address').value = invoice.address;
+      $('#invoice-note').value = invoice.note;
+      $('#editor-items').replaceChildren();
+      (invoice.items.length ? invoice.items : [{ service: '', description: '', quantity: 1, rate: 0 }]).forEach(addItemRow);
+      updatePreview();
+    }
+
+    function renderHistory() {
+      const invoices = readInvoices().sort((a, b) => (b.savedAt || '').localeCompare(a.savedAt || ''));
+      $('#history-count').textContent = invoices.length ? `${invoices.length} saved` : '';
+      $('#history-list').innerHTML = invoices.length ? invoices.map((invoice) => {
+        const { total } = amountFor(invoice);
+        return `<button class="history-row" type="button" data-invoice-number="${escapeHtml(invoice.number)}"><span class="history-name">${escapeHtml(invoice.customer || 'Unnamed customer')}</span><span class="history-amount">${currency.format(total)}</span><span class="history-number">${escapeHtml(invoice.number)} · ${formatDate(invoice.date)}</span></button>`;
+      }).join('') : '<div class="history-empty">Saved invoices will appear here.</div>';
+    }
+
+    function notify(message) {
+      const toast = $('#toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    function saveInvoice() {
+      const invoice = collectInvoice();
+      if (!invoice.number) { notify('Add an invoice number before saving.'); $('#invoice-number').focus(); return; }
+      if (!invoice.customer) { notify('Add a customer name before saving.'); $('#customer-name').focus(); return; }
+      invoice.savedAt = new Date().toISOString();
+      const invoices = readInvoices();
+      const existingIndex = invoices.findIndex((saved) => saved.number === invoice.number);
+      if (existingIndex >= 0) invoices[existingIndex] = invoice;
+      else invoices.unshift(invoice);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(invoices));
+      currentInvoice = invoice;
+      renderHistory();
+      notify('Invoice saved on this device.');
+    }
+
+    function startNewInvoice() {
+      currentInvoice = freshInvoice();
+      renderEditor(currentInvoice);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    $('#editor-items').addEventListener('change', (event) => {
+      if (event.target.matches('.service-select')) {
+        const row = event.target.closest('.item-row');
+        const service = SERVICES.find((entry) => entry.name === event.target.value);
+        if (event.target.value === 'custom' && !row.querySelector('.custom-description')) {
+          const description = document.createElement('input');
+          description.className = 'custom-description';
+          description.placeholder = 'Custom service';
+          description.setAttribute('aria-label', 'Custom service description');
+          row.prepend(description);
+          event.target.hidden = true;
+        } else if (event.target.value !== 'custom') {
+          row.querySelector('.custom-description')?.remove();
+          event.target.hidden = false;
+        }
+        if (service) row.querySelector('.rate-input').value = service.rate;
+        updatePreview();
+      }
+    });
+
+    $('#editor-items').addEventListener('input', (event) => {
+      const row = event.target.closest('.item-row');
+      if (row) updateRowTotal(row);
+      updatePreview();
+    });
+
+    $('#editor-items').addEventListener('click', (event) => {
+      if (event.target.matches('.remove-item')) {
+        event.target.closest('.item-row').remove();
+        if (!$('#editor-items').children.length) addItemRow();
+        updatePreview();
+      }
+    });
+
+    document.querySelectorAll('.editor input, .editor textarea').forEach((field) => field.addEventListener('input', updatePreview));
+    $('#add-item').addEventListener('click', () => {
+      addItemRow();
+      $('#editor-items').lastElementChild.querySelector('.service-select').focus();
+      updatePreview();
+    });
+    $('#new-invoice').addEventListener('click', startNewInvoice);
+    $('#save-invoice').addEventListener('click', saveInvoice);
+    $('#export-invoice').addEventListener('click', () => {
+      updatePreview();
+      window.print();
+    });
+    $('#history-list').addEventListener('click', (event) => {
+      const row = event.target.closest('[data-invoice-number]');
+      if (!row) return;
+      const invoice = readInvoices().find((saved) => saved.number === row.dataset.invoiceNumber);
+      if (invoice) { currentInvoice = invoice; renderEditor(invoice); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    });
+
+    currentInvoice = freshInvoice();
+    renderEditor(currentInvoice);
+    renderHistory();
+  </script>
+</body>
+</html>
