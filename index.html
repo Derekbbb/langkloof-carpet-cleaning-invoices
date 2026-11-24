@@ -404,8 +404,8 @@
         ? activeItems.map((item) => `<tr><td>${escapeHtml(item.description)}</td><td>${currency.format(item.rate * item.quantity)}</td></tr>`).join('')
         : '<tr class="empty-row"><td colspan="2">Add a service to your invoice</td></tr>';
       const adjustment = total - subtotal;
-      $('#preview-totals').innerHTML = `<div class="total-line"><span>Subtotal</span><strong>${currency.format(subtotal)}</strong></div>${adjustment ? `<div class="total-line"><span>Rounding adjustment</span><strong>${currency.format(adjustment)}</strong></div>` : ''}<div class="total-line grand"><span>${totalLabel}</span><strong>${currency.format(total)}</strong></div>`;
-      $('#editor-totals').innerHTML = `<div class="total-line"><span>Subtotal</span><strong>${currency.format(subtotal)}</strong></div>${adjustment ? `<div class="total-line"><span>Rounding adjustment</span><strong>${currency.format(adjustment)}</strong></div>` : ''}<div class="total-line grand"><span>${totalLabel}</span><strong>${currency.format(total)}</strong></div>`;
+      $('#preview-totals').innerHTML = `<div class="total-line"><span>Subtotal</span><strong>${currency.format(subtotal)}</strong></div><div class="total-line grand"><span>${totalLabel}</span><strong>${currency.format(total)}</strong></div>`;
+      $('#editor-totals').innerHTML = `<div class="total-line"><span>Subtotal</span><strong>${currency.format(subtotal)}</strong></div><div class="total-line grand"><span>${totalLabel}</span><strong>${currency.format(total)}</strong></div>`;
       $('#preview-note').textContent = invoice.note;
       currentInvoice = invoice;
     }
